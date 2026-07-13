@@ -64,8 +64,8 @@ export function buildPreToolCallScript(_inputs: HookScriptInputs): string {
 
 TOOL_INPUT="\${CLAUDE_TOOL_INPUT:-}"
 
-if printf '%s' "\${TOOL_INPUT}" | grep -q '\\.\\./\\.\\./\\.\\.'; then
-  echo "WorkspaceForge pre-tool-call guard: blocked a tool call with a deep path-traversal pattern (../../../ )." >&2
+if printf '%s' "\${TOOL_INPUT}" | grep -q '\\.\\./'; then
+  echo "WorkspaceForge pre-tool-call guard: blocked a tool call with a path-traversal component (../)." >&2
   exit 1
 fi
 
