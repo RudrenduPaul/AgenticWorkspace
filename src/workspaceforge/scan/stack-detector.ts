@@ -193,18 +193,34 @@ async function resolveWorkspacePackages(repoPath: string, globs: string[]): Prom
       for (const entry of entries) {
         const candidate = path.join(absoluteBase, entry);
         if (await fileExists(path.join(candidate, "package.json"))) {
-          resolved.add(path.relative(repoPath, candidate));
+          addIfWithinRepo(resolved, repoPath, candidate);
         }
       }
     } else {
       const absolute = path.join(repoPath, glob);
       if (await fileExists(path.join(absolute, "package.json"))) {
-        resolved.add(path.relative(repoPath, absolute));
+        addIfWithinRepo(resolved, repoPath, absolute);
       }
     }
   }
 
   return Array.from(resolved).sort();
+}
+
+/**
+ * The scanned repo's own package.json/pnpm-workspace.yaml declares these
+ * workspace globs, so a malicious or untrusted repo (this tool's whole
+ * purpose is onboarding arbitrary repos) could declare a glob like
+ * "../sibling-project" to make WorkspaceForge resolve and reference a path
+ * outside the repo it was asked to scan. Confine every resolved candidate to
+ * repoPath; drop anything that escapes it rather than silently including it.
+ */
+function addIfWithinRepo(resolved: Set<string>, repoPath: string, candidate: string): void {
+  const relative = path.relative(repoPath, candidate);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    return;
+  }
+  resolved.add(relative);
 }
 
 /** Extremely small YAML list parser, just for pnpm-workspace.yaml's `packages:` block. */

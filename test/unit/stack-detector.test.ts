@@ -134,4 +134,31 @@ describe("detectStack", () => {
     expect(result.monorepo.isMonorepo).toBe(false);
     expect(result.monorepo.packageCount).toBe(0);
   });
+
+  it("drops a workspaces glob that resolves outside repoPath instead of including it", async () => {
+    // A malicious or untrusted target repo could declare a workspaces glob
+    // that escapes its own directory. WorkspaceForge scans arbitrary repos by
+    // design, so this must never resolve to a path outside repoPath.
+    const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), "wf-outside-"));
+    try {
+      await write(outsideDir, "package.json", "{}");
+      const relativeToRepo = path.relative(repoPath, outsideDir);
+      await write(
+        repoPath,
+        "package.json",
+        JSON.stringify({ workspaces: [relativeToRepo, "packages/*"] }),
+      );
+      await write(repoPath, "package-lock.json", "{}");
+      await write(repoPath, "packages/pkg-a/package.json", "{}");
+
+      const result = await detectStack(repoPath);
+
+      expect(result.monorepo.packagePaths).toEqual([path.join("packages", "pkg-a")]);
+      expect(
+        result.monorepo.packagePaths.some((p) => p.startsWith("..") || path.isAbsolute(p)),
+      ).toBe(false);
+    } finally {
+      await fs.rm(outsideDir, { recursive: true, force: true });
+    }
+  });
 });
