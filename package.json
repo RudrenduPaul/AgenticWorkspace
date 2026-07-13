@@ -24,7 +24,8 @@
   "author": "Rudrendu Paul",
   "type": "module",
   "bin": {
-    "workspaceforge": "./dist/workspaceforge/cli.js"
+    "workspaceforge": "./dist/workspaceforge/cli.js",
+    "workspaceforge-cli": "./dist/workspaceforge/cli.js"
   },
   "main": "./dist/workspaceforge/index.js",
   "types": "./dist/workspaceforge/index.d.ts",
