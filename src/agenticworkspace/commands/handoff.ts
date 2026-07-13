@@ -36,9 +36,9 @@ export async function runHandoffNewCommand(
       json: {
         ok: false,
         error: "no_workspace_found",
-        message: "No .workspace/ directory found. Run 'workspaceforge init' first.",
+        message: "No .workspace/ directory found. Run 'agenticworkspace init' first.",
       },
-      humanLines: ["No .workspace/ directory found. Run 'workspaceforge init' first."],
+      humanLines: ["No .workspace/ directory found. Run 'agenticworkspace init' first."],
     };
   }
 

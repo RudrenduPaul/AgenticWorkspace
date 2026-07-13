@@ -13,7 +13,7 @@ export interface AdapterManifestEntry {
 
 export interface WorkspaceManifest {
   manifestSchemaVersion: string;
-  workspaceforgeVersion: string;
+  agenticworkspaceVersion: string;
   createdAt: string;
   lastScanAt: string;
   stack: {
@@ -38,7 +38,7 @@ export interface WorkspaceManifest {
 /** Required top-level keys a valid workspace.json must have. Used by partial-state detection. */
 export const REQUIRED_MANIFEST_KEYS: Array<keyof WorkspaceManifest> = [
   "manifestSchemaVersion",
-  "workspaceforgeVersion",
+  "agenticworkspaceVersion",
   "createdAt",
   "lastScanAt",
   "stack",

@@ -5,7 +5,7 @@ import { runStatusCommand } from "./commands/status.js";
 import { runHandoffNewCommand } from "./commands/handoff.js";
 import { runScanCommand } from "./commands/scan.js";
 import { runAdapterInstallCommand } from "./commands/adapter.js";
-import { WORKSPACEFORGE_VERSION } from "./scaffold/init-engine.js";
+import { AGENTICWORKSPACE_VERSION } from "./scaffold/init-engine.js";
 
 interface CommandOutcome {
   exitCode: number;
@@ -27,9 +27,9 @@ function emit(outcome: CommandOutcome, jsonMode: boolean): void {
 const program = new Command();
 
 program
-  .name("workspaceforge")
+  .name("agenticworkspace")
   .description("Convert any repository into an agent-ready workspace: stack detection, progressive context, session handoffs, and a Claude Code adapter.")
-  .version(WORKSPACEFORGE_VERSION);
+  .version(AGENTICWORKSPACE_VERSION);
 
 program
   .command("init")
@@ -87,6 +87,6 @@ handoffCommand
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`workspaceforge: ${message}`);
+  console.error(`agenticworkspace: ${message}`);
   process.exitCode = 1;
 });

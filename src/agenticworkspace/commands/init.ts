@@ -46,7 +46,7 @@ export async function runInitCommand(options: InitCommandOptions): Promise<InitC
       };
     }
 
-    console.log(`\nWorkspaceForge detected a partial or malformed .workspace/ state:\n  ${partialState.message}\n`);
+    console.log(`\nAgenticWorkspace detected a partial or malformed .workspace/ state:\n  ${partialState.message}\n`);
     const choice = await askRepairResetAbort();
 
     if (choice === "abort") {
@@ -75,7 +75,7 @@ function buildSuccessOutcome(result: InitEngineResult, wasRepairOrReset: boolean
   const detectedBackendNames = memoryBackends.filter((b) => b.detected).map((b) => b.name);
 
   const humanLines: string[] = [];
-  humanLines.push("WorkspaceForge v0.1 -- Repo-to-Agent-Workspace Converter");
+  humanLines.push("AgenticWorkspace v0.1 -- Repo-to-Agent-Workspace Converter");
   humanLines.push(`Target: ${result.repoPath}`);
   humanLines.push("");
   humanLines.push("Scanning repository...");
@@ -127,7 +127,7 @@ function buildSuccessOutcome(result: InitEngineResult, wasRepairOrReset: boolean
     exitCode: EXIT_CODES.OK,
     json: {
       ok: true,
-      workspaceforge_version: manifest.workspaceforgeVersion,
+      agenticworkspace_version: manifest.agenticworkspaceVersion,
       scanned_at: manifest.lastScanAt,
       target: result.repoPath,
       stack: {

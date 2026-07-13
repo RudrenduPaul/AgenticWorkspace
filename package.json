@@ -1,5 +1,5 @@
 {
-  "name": "workspaceforge-cli",
+  "name": "agenticworkspace-cli",
   "version": "0.1.0",
   "description": "CLI that converts any repository into an agent-ready workspace: detects your stack, scaffolds a .workspace/ directory with progressive context loading and session handoffs, and installs a working Claude Code adapter out of the box.",
   "keywords": [
@@ -12,23 +12,23 @@
     "session-handoff",
     "devex"
   ],
-  "homepage": "https://github.com/RudrenduPaul/WorkspaceForge#readme",
+  "homepage": "https://github.com/RudrenduPaul/AgenticWorkspace#readme",
   "bugs": {
-    "url": "https://github.com/RudrenduPaul/WorkspaceForge/issues"
+    "url": "https://github.com/RudrenduPaul/AgenticWorkspace/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RudrenduPaul/WorkspaceForge.git"
+    "url": "git+https://github.com/RudrenduPaul/AgenticWorkspace.git"
   },
   "license": "Apache-2.0",
   "author": "Rudrendu Paul",
   "type": "module",
   "bin": {
-    "workspaceforge": "./dist/workspaceforge/cli.js",
-    "workspaceforge-cli": "./dist/workspaceforge/cli.js"
+    "agenticworkspace": "./dist/agenticworkspace/cli.js",
+    "agenticworkspace-cli": "./dist/agenticworkspace/cli.js"
   },
-  "main": "./dist/workspaceforge/index.js",
-  "types": "./dist/workspaceforge/index.d.ts",
+  "main": "./dist/agenticworkspace/index.js",
+  "types": "./dist/agenticworkspace/index.d.ts",
   "files": [
     "dist"
   ],
@@ -37,7 +37,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsx src/workspaceforge/cli.ts",
+    "dev": "tsx src/agenticworkspace/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

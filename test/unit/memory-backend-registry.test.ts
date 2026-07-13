@@ -6,8 +6,8 @@ import {
   memoryBackendRegistry,
   detectAllMemoryBackends,
   anyBackendDetected,
-} from "../../src/workspaceforge/memory-backends/registry.js";
-import type { MemoryBackend } from "../../src/workspaceforge/memory-backends/types.js";
+} from "../../src/agenticworkspace/memory-backends/registry.js";
+import type { MemoryBackend } from "../../src/agenticworkspace/memory-backends/types.js";
 
 async function makeTempRepo(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "wf-backend-test-"));

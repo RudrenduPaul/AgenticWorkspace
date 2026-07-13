@@ -7,14 +7,14 @@ import path from "node:path";
 // the interactive branch of runInitCommand without a real TTY. Each test
 // configures the mocked answer before calling runInitCommand.
 const askRepairResetAbortMock = vi.fn();
-vi.mock("../../src/workspaceforge/util/prompt.js", () => ({
+vi.mock("../../src/agenticworkspace/util/prompt.js", () => ({
   askRepairResetAbort: () => askRepairResetAbortMock(),
   isInteractiveTerminal: () => true,
 }));
 
-const { runInitCommand } = await import("../../src/workspaceforge/commands/init.js");
-const { runInitEngine } = await import("../../src/workspaceforge/scaffold/init-engine.js");
-const { writeInProgressMarker } = await import("../../src/workspaceforge/state/partial-state.js");
+const { runInitCommand } = await import("../../src/agenticworkspace/commands/init.js");
+const { runInitEngine } = await import("../../src/agenticworkspace/scaffold/init-engine.js");
+const { writeInProgressMarker } = await import("../../src/agenticworkspace/state/partial-state.js");
 
 async function makeTempRepo(): Promise<string> {
   const repoPath = await fs.mkdtemp(path.join(os.tmpdir(), "wf-partial-state-"));

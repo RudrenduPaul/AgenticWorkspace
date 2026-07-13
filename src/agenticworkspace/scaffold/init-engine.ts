@@ -15,7 +15,7 @@ import { writeInProgressMarker, removeInProgressMarker } from "../state/partial-
 import { ensureDir } from "../util/fs-utils.js";
 
 /** package.json version is not read at runtime to avoid a fs round trip on every run; kept in sync manually with package.json. */
-export const WORKSPACEFORGE_VERSION = "0.1.0";
+export const AGENTICWORKSPACE_VERSION = "0.1.0";
 
 export interface InitEngineResult {
   repoPath: string;
@@ -65,7 +65,7 @@ export async function runInitEngine(repoPath: string, workspaceDir: string): Pro
     const now = new Date().toISOString();
     const manifest: WorkspaceManifest = {
       manifestSchemaVersion: WORKSPACE_MANIFEST_SCHEMA_VERSION,
-      workspaceforgeVersion: WORKSPACEFORGE_VERSION,
+      agenticworkspaceVersion: AGENTICWORKSPACE_VERSION,
       createdAt: existingManifest?.createdAt ?? now,
       lastScanAt: now,
       stack: {

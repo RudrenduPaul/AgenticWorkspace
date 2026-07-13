@@ -4,7 +4,7 @@ import type { MemoryBackend } from "./types.js";
 
 /**
  * Serena detection: a `.serena/` directory at the repo root. Detect only --
- * WorkspaceForge never reads, writes, or modifies anything inside it.
+ * AgenticWorkspace never reads, writes, or modifies anything inside it.
  */
 export const serenaBackend: MemoryBackend = {
   name: "serena",

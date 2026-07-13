@@ -23,7 +23,7 @@ export const codexAdapter: Adapter = {
 
   async install(): Promise<void> {
     throw new Error(
-      "workspaceforge: the Codex adapter is not yet implemented (planned for v0.2). " +
+      "agenticworkspace: the Codex adapter is not yet implemented (planned for v0.2). " +
         "Only the Claude Code adapter works end to end in v0.1.",
     );
   },

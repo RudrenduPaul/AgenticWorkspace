@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { runScanCommand } from "../../src/workspaceforge/commands/scan.js";
-import { runAdapterInstallCommand } from "../../src/workspaceforge/commands/adapter.js";
-import { runInitCommand } from "../../src/workspaceforge/commands/init.js";
-import { EXIT_CODES } from "../../src/workspaceforge/util/exit-codes.js";
+import { runScanCommand } from "../../src/agenticworkspace/commands/scan.js";
+import { runAdapterInstallCommand } from "../../src/agenticworkspace/commands/adapter.js";
+import { runInitCommand } from "../../src/agenticworkspace/commands/init.js";
+import { EXIT_CODES } from "../../src/agenticworkspace/util/exit-codes.js";
 
 async function makeTempRepo(): Promise<string> {
   const repoPath = await fs.mkdtemp(path.join(os.tmpdir(), "wf-scan-adapter-"));

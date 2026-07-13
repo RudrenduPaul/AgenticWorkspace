@@ -28,9 +28,9 @@ export async function runStatusCommand(options: StatusCommandOptions): Promise<S
       json: {
         ok: false,
         error: "no_workspace_found",
-        message: "No .workspace/ directory found. Run 'workspaceforge init' first.",
+        message: "No .workspace/ directory found. Run 'agenticworkspace init' first.",
       },
-      humanLines: ["No .workspace/ directory found. Run 'workspaceforge init' first."],
+      humanLines: ["No .workspace/ directory found. Run 'agenticworkspace init' first."],
     };
   }
 
@@ -43,7 +43,7 @@ export async function runStatusCommand(options: StatusCommandOptions): Promise<S
         partial_state: partialState.type,
         message: partialState.message,
       },
-      humanLines: [`Error: ${partialState.message}`, "Run 'workspaceforge init' to repair, reset, or abort."],
+      humanLines: [`Error: ${partialState.message}`, "Run 'agenticworkspace init' to repair, reset, or abort."],
     };
   }
 
@@ -65,7 +65,7 @@ export async function runStatusCommand(options: StatusCommandOptions): Promise<S
   const otherBackends = manifest.memoryBackends.filter((b) => b.detected);
 
   const humanLines: string[] = [];
-  humanLines.push("WorkspaceForge status");
+  humanLines.push("AgenticWorkspace status");
   humanLines.push(`Target: ${repoPath}`);
   humanLines.push(`Last scan: ${manifest.lastScanAt}`);
   humanLines.push("");
@@ -91,7 +91,7 @@ export async function runStatusCommand(options: StatusCommandOptions): Promise<S
     exitCode: EXIT_CODES.OK,
     json: {
       ok: true,
-      workspace_version: manifest.workspaceforgeVersion,
+      workspace_version: manifest.agenticworkspaceVersion,
       scanned_at: manifest.lastScanAt,
       stack: {
         language: manifest.stack.language,

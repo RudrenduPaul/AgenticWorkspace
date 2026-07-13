@@ -1,6 +1,6 @@
 /**
  * A MemoryBackend describes a third-party (or first-party) memory/context
- * tool that may already be wired into a target repository. WorkspaceForge
+ * tool that may already be wired into a target repository. AgenticWorkspace
  * never assumes a specific backend is present -- it detects what is already
  * there and reports it, so `init` can avoid silently duplicating or
  * conflicting with a tool a team has already adopted.

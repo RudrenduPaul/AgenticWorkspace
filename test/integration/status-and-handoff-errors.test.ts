@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { runStatusCommand } from "../../src/workspaceforge/commands/status.js";
-import { runHandoffNewCommand } from "../../src/workspaceforge/commands/handoff.js";
-import { runInitCommand } from "../../src/workspaceforge/commands/init.js";
-import { writeInProgressMarker } from "../../src/workspaceforge/state/partial-state.js";
-import { EXIT_CODES } from "../../src/workspaceforge/util/exit-codes.js";
+import { runStatusCommand } from "../../src/agenticworkspace/commands/status.js";
+import { runHandoffNewCommand } from "../../src/agenticworkspace/commands/handoff.js";
+import { runInitCommand } from "../../src/agenticworkspace/commands/init.js";
+import { writeInProgressMarker } from "../../src/agenticworkspace/state/partial-state.js";
+import { EXIT_CODES } from "../../src/agenticworkspace/util/exit-codes.js";
 
 async function makeTempRepo(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "wf-status-handoff-errors-"));

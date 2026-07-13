@@ -1,5 +1,5 @@
 /**
- * An Adapter wires WorkspaceForge's `.workspace/` scaffold into a specific
+ * An Adapter wires AgenticWorkspace's `.workspace/` scaffold into a specific
  * AI coding tool (Claude Code, Codex, Cursor, ...). Each adapter owns its own
  * hook/settings format and versioning; the CLI only depends on this
  * interface, so adding a new tool means implementing Adapter and registering
@@ -16,7 +16,7 @@ export interface Adapter {
    */
   hookSchemaVersion: string;
 
-  /** True if this adapter is fully implemented and safe to install in this version of WorkspaceForge. */
+  /** True if this adapter is fully implemented and safe to install in this version of AgenticWorkspace. */
   isImplemented: boolean;
 
   /** Human-readable one-liner, used in status output (especially for not-yet-implemented adapters). */

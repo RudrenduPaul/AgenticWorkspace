@@ -26,7 +26,7 @@ export async function runScanCommand(options: ScanCommandOptions): Promise<ScanC
   ]);
 
   const humanLines: string[] = [];
-  humanLines.push(`WorkspaceForge scan -- ${repoPath}`);
+  humanLines.push(`AgenticWorkspace scan -- ${repoPath}`);
   humanLines.push(
     `Stack: ${stack.language}, ${stack.packageManager}${
       stack.monorepo.isMonorepo ? `, monorepo (${stack.monorepo.packageCount} packages)` : ""

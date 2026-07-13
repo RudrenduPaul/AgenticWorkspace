@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { runInitCommand } from "../../src/workspaceforge/commands/init.js";
-import { runStatusCommand } from "../../src/workspaceforge/commands/status.js";
-import { runHandoffNewCommand } from "../../src/workspaceforge/commands/handoff.js";
+import { runInitCommand } from "../../src/agenticworkspace/commands/init.js";
+import { runStatusCommand } from "../../src/agenticworkspace/commands/status.js";
+import { runHandoffNewCommand } from "../../src/agenticworkspace/commands/handoff.js";
 
 async function makeTempRepo(): Promise<string> {
   const repoPath = await fs.mkdtemp(path.join(os.tmpdir(), "wf-init-integration-"));

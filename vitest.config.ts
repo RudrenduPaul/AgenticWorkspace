@@ -13,10 +13,10 @@ export default defineConfig({
       // every code path they call into is covered via the command modules
       // directly. adapters/types.ts is a type-only interface file.
       exclude: [
-        "src/workspaceforge/cli.ts",
-        "src/workspaceforge/index.ts",
-        "src/workspaceforge/adapters/types.ts",
-        "src/workspaceforge/memory-backends/types.ts",
+        "src/agenticworkspace/cli.ts",
+        "src/agenticworkspace/index.ts",
+        "src/agenticworkspace/adapters/types.ts",
+        "src/agenticworkspace/memory-backends/types.ts",
       ],
       thresholds: {
         lines: 80,

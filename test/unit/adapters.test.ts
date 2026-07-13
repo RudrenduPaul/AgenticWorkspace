@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { adapterRegistry, getAdapter } from "../../src/workspaceforge/adapters/registry.js";
-import { codexAdapter } from "../../src/workspaceforge/adapters/codex/index.js";
-import { cursorAdapter } from "../../src/workspaceforge/adapters/cursor/index.js";
-import { claudeCodeAdapter } from "../../src/workspaceforge/adapters/claude-code/install.js";
+import { adapterRegistry, getAdapter } from "../../src/agenticworkspace/adapters/registry.js";
+import { codexAdapter } from "../../src/agenticworkspace/adapters/codex/index.js";
+import { cursorAdapter } from "../../src/agenticworkspace/adapters/cursor/index.js";
+import { claudeCodeAdapter } from "../../src/agenticworkspace/adapters/claude-code/install.js";
 
 describe("adapter registry", () => {
   it("registers claude-code, codex, and cursor", () => {

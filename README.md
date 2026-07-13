@@ -1,16 +1,16 @@
-# WorkspaceForge
+# AgenticWorkspace
 
 Convert a repository into an agent-ready workspace in one command: detect the stack, scaffold a
 `.workspace/` directory with progressive context loading and session handoffs, and install a
 working Claude Code adapter out of the box.
 
 ```bash
-npx workspaceforge-cli init
+npx agenticworkspace-cli init
 ```
 
 This is a v0.1 release. Zero installs, zero GitHub stars, first release. 97/97 tests pass. It
 does what's described below and nothing more. The section right below is an honest comparison
-against the other tools already working in this space, so you can decide if WorkspaceForge is
+against the other tools already working in this space, so you can decide if AgenticWorkspace is
 actually worth trying before you run it.
 
 ## How this compares to repo-harness and harnesskit
@@ -19,7 +19,7 @@ Repo-local context and session-handoff tracking for coding agents is not a new i
 building this, we checked what's already shipping. Two npm packages cover overlapping ground,
 and their current state (checked 2026-07-13) matters more than any of our own claims about them:
 
-| | **WorkspaceForge** v0.1.0 | **repo-harness** v0.9.2 | **harnesskit** v0.1.1 |
+| | **AgenticWorkspace** v0.1.0 | **repo-harness** v0.9.2 | **harnesskit** v0.1.1 |
 |---|---|---|---|
 | npm activity | First release, 0 versions published to the real registry yet | 37 published versions, created 2026-05-28, last published 2026-07-09 (4 days before this was written) | 2 published versions, last published 2026-03-20 (about 4 months stale) |
 | GitHub | 0 stars (new repo) | 390 stars, 24 forks, pushed today | GitHub repo now returns 404, cannot inspect source |
@@ -41,7 +41,7 @@ Everything marked "unverified" for harnesskit stayed that way because its GitHub
 longer resolves and its npm page blocked automated fetches; we are not going to guess at what a
 tool does from a description string.
 
-The honest read: repo-harness is more mature than WorkspaceForge on almost every dimension in
+The honest read: repo-harness is more mature than AgenticWorkspace on almost every dimension in
 this table right now. It already has a working Claude Code adapter, a working Codex adapter, and
 five languages of documentation. It has been iterating fast (37 versions in about six weeks). If
 you already use it and it works for you, there's no reason to switch.
@@ -56,44 +56,44 @@ established one. We're not going to dress that up.
 One more thing worth naming: Claude Code itself now ships a first-party `MEMORY.md`-based memory
 system and team memory stores, plus a `post-session` lifecycle hook that can snapshot
 uncommitted work. It doesn't scan a repo's stack or install a Claude-Code-specific adapter the way
-WorkspaceForge does, but the gap between "what the platform does natively" and "what a tool like
+AgenticWorkspace does, but the gap between "what the platform does natively" and "what a tool like
 this adds" is narrower than it was when this category started, and it's worth watching before
 assuming any of this tooling stays necessary.
 
 ## Install
 
 ```bash
-npx workspaceforge-cli init
+npx agenticworkspace-cli init
 ```
 
 or, for repeat use:
 
 ```bash
-npm install -g workspaceforge-cli
-workspaceforge init
+npm install -g agenticworkspace-cli
+agenticworkspace init
 ```
 
 ## Usage
 
 ```bash
 # Scan the current repo and write the .workspace/ scaffold plus the Claude Code adapter
-workspaceforge init
+agenticworkspace init
 
 # Detect stack + existing agent-tooling surface only, no writes
-workspaceforge scan --json
+agenticworkspace scan --json
 
 # Check workspace health: stack, context budget, handoff count, adapter staleness
-workspaceforge status --json
+agenticworkspace status --json
 
 # (Re)install a single adapter's hook wiring
-workspaceforge adapter install claude-code
+agenticworkspace adapter install claude-code
 
 # Leave a handoff note for the next session
-workspaceforge handoff new "implemented auth flow, next: wire session refresh"
+agenticworkspace handoff new "implemented auth flow, next: wire session refresh"
 ```
 
 Every subcommand supports `--json` for structured output alongside the human-readable default,
-so a script or an agent invoking WorkspaceForge programmatically can parse the result directly.
+so a script or an agent invoking AgenticWorkspace programmatically can parse the result directly.
 
 ## What `init` does
 
@@ -137,14 +137,14 @@ so a script or an agent invoking WorkspaceForge programmatically can parse the r
 | Codex | Registered, not yet implemented |
 | Cursor | Registered, not yet implemented |
 
-## Extending WorkspaceForge
+## Extending AgenticWorkspace
 
-WorkspaceForge is built around two plugin interfaces:
+AgenticWorkspace is built around two plugin interfaces:
 
 - `MemoryBackend` -- detects whether a repo already has a memory/context tool wired in
-  (`src/workspaceforge/memory-backends/`)
+  (`src/agenticworkspace/memory-backends/`)
 - `Adapter` -- wires the `.workspace/` scaffold into a specific coding tool
-  (`src/workspaceforge/adapters/`)
+  (`src/agenticworkspace/adapters/`)
 
 Adding support for a new tool means implementing one of these interfaces and registering it; no
 changes to the CLI or scan code are required.

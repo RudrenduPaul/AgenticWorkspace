@@ -4,7 +4,7 @@ import {
   shellQuote,
   sanitizeForShellEmbedding,
   sanitizeListForShellEmbedding,
-} from "../../src/workspaceforge/util/sanitize.js";
+} from "../../src/agenticworkspace/util/sanitize.js";
 
 describe("validateAgainstAllowlist", () => {
   it("accepts alphanumeric names", () => {

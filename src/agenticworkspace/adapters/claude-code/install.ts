@@ -100,7 +100,7 @@ export const claudeCodeAdapter: Adapter = {
 
     for (const warning of warnings) {
       // Logged, never thrown -- a rejected value is skipped, not fatal.
-      console.warn(`[workspaceforge] ${warning}`);
+      console.warn(`[agenticworkspace] ${warning}`);
     }
 
     await writeJson(settingsPath(workspaceDir), buildSettings());

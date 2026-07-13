@@ -1,8 +1,8 @@
 /**
- * Public library exports. Most users will invoke the `workspaceforge` CLI
+ * Public library exports. Most users will invoke the `agenticworkspace` CLI
  * binary directly (see cli.ts), but the underlying scan/scaffold/adapter
  * logic is also importable for programmatic use (e.g. another tool that
- * wants to run WorkspaceForge's detection logic without shelling out).
+ * wants to run AgenticWorkspace's detection logic without shelling out).
  */
 
 export { detectStack } from "./scan/stack-detector.js";

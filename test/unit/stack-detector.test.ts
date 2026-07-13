@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { detectStack } from "../../src/workspaceforge/scan/stack-detector.js";
+import { detectStack } from "../../src/agenticworkspace/scan/stack-detector.js";
 
 async function makeTempRepo(): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), "wf-stack-test-"));
@@ -137,7 +137,7 @@ describe("detectStack", () => {
 
   it("drops a workspaces glob that resolves outside repoPath instead of including it", async () => {
     // A malicious or untrusted target repo could declare a workspaces glob
-    // that escapes its own directory. WorkspaceForge scans arbitrary repos by
+    // that escapes its own directory. AgenticWorkspace scans arbitrary repos by
     // design, so this must never resolve to a path outside repoPath.
     const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), "wf-outside-"));
     try {
