@@ -36,6 +36,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
     "build": "tsc -p tsconfig.json",
     "dev": "tsx src/agenticworkspace/cli.ts",
     "test": "vitest run",
