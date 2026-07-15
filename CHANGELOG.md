@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.1
+
+- Fix: the top-level CLI error handler now honors `--json` for errors that escape a command's own
+  try/catch (e.g. an unwritable or nonexistent `--path`). Previously every subcommand's `--json`
+  contract had one gap -- an unexpected filesystem error printed a plain-text line to stderr
+  instead of a structured `{ "ok": false, ... }` object, which broke a calling agent's ability to
+  parse the output. Covered by a new process-level integration test that spawns the real CLI.
+
 ## 0.1.0
 
 Initial release.

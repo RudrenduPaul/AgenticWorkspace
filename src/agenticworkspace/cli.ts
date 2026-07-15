@@ -6,6 +6,7 @@ import { runHandoffNewCommand } from "./commands/handoff.js";
 import { runScanCommand } from "./commands/scan.js";
 import { runAdapterInstallCommand } from "./commands/adapter.js";
 import { AGENTICWORKSPACE_VERSION } from "./scaffold/init-engine.js";
+import { EXIT_CODES } from "./util/exit-codes.js";
 
 interface CommandOutcome {
   exitCode: number;
@@ -87,6 +88,25 @@ handoffCommand
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(`agenticworkspace: ${message}`);
-  process.exitCode = 1;
+  // Any error that escapes a command's own try/catch (e.g. an unwritable or
+  // nonexistent --path) still has to honor --json -- an agent invoking this
+  // CLI programmatically parses stdout as JSON and must never be handed a
+  // bare stderr string instead.
+  const jsonMode = process.argv.includes("--json");
+  if (jsonMode) {
+    console.log(
+      JSON.stringify(
+        {
+          ok: false,
+          error: "unexpected_error",
+          message,
+        },
+        null,
+        2,
+      ),
+    );
+  } else {
+    console.error(`agenticworkspace: ${message}`);
+  }
+  process.exitCode = EXIT_CODES.GENERAL_ERROR;
 });

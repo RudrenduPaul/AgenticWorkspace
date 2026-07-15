@@ -15,7 +15,7 @@ import { writeInProgressMarker, removeInProgressMarker } from "../state/partial-
 import { ensureDir } from "../util/fs-utils.js";
 
 /** package.json version is not read at runtime to avoid a fs round trip on every run; kept in sync manually with package.json. */
-export const AGENTICWORKSPACE_VERSION = "0.1.0";
+export const AGENTICWORKSPACE_VERSION = "0.1.1";
 
 export interface InitEngineResult {
   repoPath: string;
