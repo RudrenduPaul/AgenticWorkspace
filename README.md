@@ -18,7 +18,20 @@ worth trying before you run it.
 
 ## Install
 
-Not published to npm yet. Until it is, run it from a local clone:
+Published on npm as `agenticworkspace-cli`:
+
+```bash
+npx agenticworkspace-cli init
+```
+
+For repeat use, install it globally:
+
+```bash
+npm install -g agenticworkspace-cli
+agenticworkspace init
+```
+
+To build from source instead:
 
 ```bash
 git clone https://github.com/RudrenduPaul/AgenticWorkspace.git
@@ -26,15 +39,6 @@ cd AgenticWorkspace
 npm install
 npm run build
 node dist/agenticworkspace/cli.js init
-```
-
-Once published, both of these will work:
-
-```bash
-npx agenticworkspace-cli init
-# or, for repeat use:
-npm install -g agenticworkspace-cli
-agenticworkspace init
 ```
 
 ## Features
