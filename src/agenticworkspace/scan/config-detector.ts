@@ -12,7 +12,7 @@ export interface ExistingConfigResult {
 }
 
 /**
- * WF02 -- existing agent-config detection. AgenticWorkspace never overwrites
+ * Existing agent-config detection. AgenticWorkspace never overwrites
  * any of these files; init only reports their presence.
  */
 export async function detectExistingConfig(repoPath: string): Promise<ExistingConfigResult> {
