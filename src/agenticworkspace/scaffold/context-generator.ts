@@ -2,7 +2,7 @@ import path from "node:path";
 import { listDir, dirExists, writeText, byteLength } from "../util/fs-utils.js";
 import type { StackDetectionResult } from "../scan/stack-detector.js";
 
-/** Root context budget, per Section 3 of the product spec (~12KB, progressive loading, not a whole-repo dump). */
+/** Root context budget (~12KB, progressive loading, not a whole-repo dump). */
 export const ROOT_CONTEXT_BUDGET_BYTES = 12 * 1024;
 
 const IGNORED_DIRS = new Set([

@@ -4,9 +4,8 @@ import type { Adapter } from "../types.js";
  * Codex adapter -- registered so the adapter registry and CLI plumbing are
  * real and extensible, but NOT YET IMPLEMENTED in v0.1. install() throws
  * rather than silently doing nothing, so a caller cannot mistake a no-op for
- * a real install. Tracked as v0.2 scope (WF07 in the workspace-surface scan
- * table) -- a community-contributed shim following the same handoff/context
- * model as the Claude Code adapter.
+ * a real install. Tracked as v0.2 scope -- a community-contributed shim
+ * following the same handoff/context model as the Claude Code adapter.
  */
 export const codexAdapter: Adapter = {
   name: "codex",

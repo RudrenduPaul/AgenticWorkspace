@@ -34,10 +34,10 @@ interface PackageJsonShape {
 }
 
 /**
- * WF01 -- stack and package-manager detection. Real filesystem checks, no
+ * Stack and package-manager detection. Real filesystem checks, no
  * network calls. Covers, at minimum, npm/pnpm/yarn + TypeScript/JavaScript,
  * plus Python (pip/poetry), with lighter-weight signals for cargo, go
- * modules, and bundler/Gemfile per the broader workspace-surface scan table.
+ * modules, and bundler/Gemfile.
  */
 export async function detectStack(repoPath: string): Promise<StackDetectionResult> {
   const signals: string[] = [];
