@@ -6,6 +6,7 @@ context and session handoffs, and installs a working Claude Code adapter, all in
 [![CI](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](./package.json)
+[![PyPI version](https://img.shields.io/pypi/v/agenticworkspace-cli.svg)](https://pypi.org/project/agenticworkspace-cli/)
 
 ```bash
 npx agenticworkspace-cli init
@@ -18,20 +19,47 @@ worth trying before you run it.
 
 ## Install
 
-Published on npm as `agenticworkspace-cli`:
+AgenticWorkspace ships two independent, equally first-class packages that
+implement the same scan/scaffold/adapter pipeline and read/write the same
+`.workspace/` directory shape -- pick whichever fits your toolchain, or
+install both. Neither is deprecated in favor of the other.
 
 ```bash
+# npm -- JavaScript/TypeScript CLI + library (live today)
 npx agenticworkspace-cli init
 ```
 
-For repeat use, install it globally:
+**The PyPI package is not live yet.** The Python port is built, tested
+(132/132 pytest tests), and verified end-to-end from a real built wheel --
+publishing is blocked by PyPI's own new-project-creation anti-abuse rate
+limit (`429 Too many new projects created`) on this account, an
+account-level throttle unrelated to the code, confirmed across two upload
+attempts. It will be retried once the limit clears. Until then, install it
+from source:
+
+```bash
+git clone https://github.com/RudrenduPaul/AgenticWorkspace.git
+cd AgenticWorkspace/python
+pip install -e .
+agenticworkspace init --path /path/to/your/repo
+```
+
+Once published, the intended install is `pip install agenticworkspace-cli`.
+
+For repeat use with the npm package, install it globally:
 
 ```bash
 npm install -g agenticworkspace-cli
 agenticworkspace init
 ```
 
-To build from source instead:
+The Python package's CLI entry point is also `agenticworkspace` (e.g.
+`agenticworkspace init --path ./my-app`); see
+[`python/README.md`](./python/README.md) and
+[docs/getting-started.md](./docs/getting-started.md) for the Python-specific
+walkthrough.
+
+To build the TypeScript package from source instead:
 
 ```bash
 git clone https://github.com/RudrenduPaul/AgenticWorkspace.git
@@ -218,6 +246,12 @@ instance in that folder's `registry.ts`; no changes to the CLI or scan code are 
 `src/agenticworkspace/adapters/codex/` and `.../cursor/` for the shape a not-yet-implemented stub
 takes, and `.../claude-code/` for a fully working reference implementation.
 
+The Python package (`pip install agenticworkspace-cli`) implements the same two interfaces as
+`abc.ABC` classes with the same registration contract (`memory_backend_registry` /
+`adapter_registry`, plain Python lists) -- see
+[docs/integrations/custom-plugin.md](./docs/integrations/custom-plugin.md) for a worked example in
+both languages.
+
 ## How this compares to repo-harness and harnesskit
 
 Repo-local context and session-handoff tracking for coding agents is not a new idea. Before
@@ -314,9 +348,12 @@ welcome, see [Extending AgenticWorkspace](#extending-agenticworkspace).
 Not in this repository. This CLI is the free, local, MIT-comparable (Apache-2.0) layer. There is no
 hosted component here to sign up for.
 
-**Why isn't this on npm yet?**
-This is the package's first-ever publish, and it goes through a staged review process rather than a
-direct `npm publish`. Until that lands, run it from a local clone (see [Install](#install)).
+**Is there a Python version?**
+Yes -- a genuine Python port (not a wrapper around the Node binary), with the same CLI shape, the
+same `.workspace/` output, and the same `MemoryBackend`/`Adapter` plugin contract. It is not live on
+PyPI yet (blocked by PyPI's own new-project rate limit, not a code issue -- see
+[Install](#install)); install it from source in the meantime, or watch
+[`python/README.md`](./python/README.md) for when `pip install agenticworkspace-cli` starts working.
 
 ## Development
 
@@ -331,6 +368,18 @@ npm test
 99/99 tests pass as of this release. Before opening a pull request, run `npm run lint`,
 `npm run typecheck`, `npm run test:coverage`, and `npm run build` -- the same steps CI runs on
 Node 18.x and 20.x.
+
+For the Python package instead:
+
+```bash
+cd python
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+pytest
+```
+
+132/132 tests pass as of the Python package's initial release. See
+[`python/README.md`](./python/README.md) for the Python-specific development notes.
 
 ## Contributing
 
