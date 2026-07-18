@@ -12,6 +12,8 @@ context and session handoffs, and installs a working Claude Code adapter, all in
 npx agenticworkspace-cli init
 ```
 
+![AgenticWorkspace init: npx agenticworkspace-cli init scans a repo and scaffolds a .workspace/ directory with a Claude Code adapter, recorded from the real published npm package](./docs/demo.gif)
+
 This is a v0.1 release. Zero installs, zero GitHub stars, first release. 99/99 tests pass. It does
 what's described below and nothing more. There's an honest comparison against the other tools
 already working in this space further down, so you can decide if AgenticWorkspace is actually
@@ -29,13 +31,15 @@ install both. Neither is deprecated in favor of the other.
 npx agenticworkspace-cli init
 ```
 
-**The PyPI package is not live yet.** The Python port is built, tested
-(132/132 pytest tests), and verified end-to-end from a real built wheel --
-publishing is blocked by PyPI's own new-project-creation anti-abuse rate
-limit (`429 Too many new projects created`) on this account, an
-account-level throttle unrelated to the code, confirmed across two upload
-attempts. It will be retried once the limit clears. Until then, install it
-from source:
+**The PyPI package is now live.** The Python port is built, tested
+(132/132 pytest tests), and verified end-to-end from a real built wheel.
+
+```bash
+pip install agenticworkspace-cli
+agenticworkspace init --path /path/to/your/repo
+```
+
+To install from source instead:
 
 ```bash
 git clone https://github.com/RudrenduPaul/AgenticWorkspace.git
@@ -43,8 +47,6 @@ cd AgenticWorkspace/python
 pip install -e .
 agenticworkspace init --path /path/to/your/repo
 ```
-
-Once published, the intended install is `pip install agenticworkspace-cli`.
 
 For repeat use with the npm package, install it globally:
 
@@ -179,6 +181,10 @@ Workspace ready. Next Claude Code session in this repo will load root-context.md
 and write a handoff file on exit.
 ```
 
+Writing a session handoff and checking workspace health from a second, already-initialized repo:
+
+![AgenticWorkspace handoff and status: npx agenticworkspace-cli handoff new writes a timestamped handoff file, then npx agenticworkspace-cli status reports stack, context budget, and adapter health, recorded from the real published npm package](./docs/usage.gif)
+
 ## CLI reference
 
 Every command accepts `-p, --path <path>` (defaults to the current directory) and `--json`
@@ -260,7 +266,7 @@ their current state (checked 2026-07-14) matters more than any of our own claims
 
 | | **AgenticWorkspace** v0.1.1 | **repo-harness** v0.10.0 | **harnesskit** v0.1.1 |
 |---|---|---|---|
-| npm activity | First release, 0 versions published to the real registry yet | 38 published versions, created 2026-05-28, last published 2026-07-14 (today) | 2 published versions, last published 2026-03-20 (about 4 months stale) |
+| npm activity | 1 published version (0.1.1), published 2026-07-15 | 38 published versions, created 2026-05-28, last published 2026-07-14 (today) | 2 published versions, last published 2026-03-20 (about 4 months stale) |
 | GitHub | 0 stars (new repo) | 391 stars, 24 forks, pushed within the last day | GitHub repo now returns 404, cannot inspect source |
 | Claude Code adapter | Implemented end to end: real hook scripts + `settings.json` wiring, installed by `init` in the same run that creates the workspace | Implemented: `~/.claude/settings.json` hook adapter | Unverified, could not inspect source or README (npm page blocked our fetch, GitHub repo gone) |
 | Codex adapter | Registered in the adapter interface, `install()` throws "not yet implemented" -- honest stub, not a silent no-op | Implemented: `~/.codex/hooks.json` adapter | Unverified |
@@ -320,41 +326,6 @@ test a narrower, Claude-Code-first version of the same idea with a plugin archit
 detection and adapter code decoupled from day one, and to be upfront in public about exactly how it
 stacks up against the tool that got there first.
 
-## FAQ
-
-**Does this modify my existing CLAUDE.md, AGENTS.md, or .cursor/rules?**
-No. `init` checks for all four config files (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules`,
-`.github/copilot-instructions.md`) and reports what it finds, but never writes to or overwrites any
-of them.
-
-**Does this conflict with Serena, GitNexus, or repo-harness if I already use one of them?**
-No. Detection is read-only: AgenticWorkspace checks for `.serena/`, a GitNexus-style config, and
-repo-harness's `.ai/harness/` directory, reports what it finds in `scan`/`status`/`init` output, and
-never reads, writes, or deletes anything inside them.
-
-**What happens if `init` gets interrupted halfway through?**
-The next `init` run detects the leftover `.init-in-progress` marker or a missing/malformed
-`workspace.json` and either prompts you to repair, reset, or abort (interactive terminal), or
-returns a structured JSON error with exit code `2` (non-interactive or `--json` mode) instead of
-silently overwriting or resuming.
-
-**Why isn't the Codex or Cursor adapter implemented yet?**
-Both are registered in the `Adapter` plugin interface with `isImplemented: false` and a real, honest
-`describe()` string rather than a silent no-op. Claude Code was built first because that is the
-adapter this repo's own workflow was built and tested against. Contributions implementing either are
-welcome, see [Extending AgenticWorkspace](#extending-agenticworkspace).
-
-**Is there a hosted dashboard or paid tier?**
-Not in this repository. This CLI is the free, local, MIT-comparable (Apache-2.0) layer. There is no
-hosted component here to sign up for.
-
-**Is there a Python version?**
-Yes -- a genuine Python port (not a wrapper around the Node binary), with the same CLI shape, the
-same `.workspace/` output, and the same `MemoryBackend`/`Adapter` plugin contract. It is not live on
-PyPI yet (blocked by PyPI's own new-project rate limit, not a code issue -- see
-[Install](#install)); install it from source in the meantime, or watch
-[`python/README.md`](./python/README.md) for when `pip install agenticworkspace-cli` starts working.
-
 ## Development
 
 ```bash
@@ -380,6 +351,69 @@ pytest
 
 132/132 tests pass as of the Python package's initial release. See
 [`python/README.md`](./python/README.md) for the Python-specific development notes.
+
+## FAQ
+
+**What is AgenticWorkspace, and what makes it different from writing a CLAUDE.md file by hand?**
+It is a repo-to-agent-workspace converter: a single command (`agenticworkspace init`) scans a
+repo's stack, writes a progressive, token-budgeted context file, and installs a working Claude
+Code adapter with real hook scripts, all in one non-destructive run. The differentiator is that
+this is automated and repo-agnostic rather than a template you copy and edit by hand, and it is
+built around two documented plugin interfaces (`MemoryBackend`, `Adapter`) instead of one
+hardcoded pipeline, so adding a new coding-agent adapter or memory backend does not require
+touching the CLI or scan code.
+
+**What are the install and platform requirements?**
+The npm package requires Node.js 18 or later (`"engines": { "node": ">=18.0.0" }` in
+`package.json`). The Python package requires Python 3.9 or later (`requires-python = ">=3.9"` in
+`python/pyproject.toml`) and is classified `Operating System :: OS Independent` on PyPI. Both
+packages are plain Node/Python with no native or OS-specific dependencies; day-to-day development
+and testing happen on macOS and Linux, and Windows has not been separately verified by the
+maintainers.
+
+**Does this modify my existing CLAUDE.md, AGENTS.md, or .cursor/rules?**
+No. `init` checks for all four config files (`CLAUDE.md`, `AGENTS.md`, `.cursor/rules`,
+`.github/copilot-instructions.md`) and reports what it finds, but never writes to or overwrites any
+of them.
+
+**Does this conflict with Serena, GitNexus, or repo-harness if I already use one of them?**
+No. Detection is read-only: AgenticWorkspace checks for `.serena/`, a GitNexus-style config, and
+repo-harness's `.ai/harness/` directory, reports what it finds in `scan`/`status`/`init` output, and
+never reads, writes, or deletes anything inside them.
+
+**How does this actually compare to repo-harness, the most established alternative?**
+See the [full comparison table](#how-this-compares-to-repo-harness-and-harnesskit) above for the
+complete, dated breakdown. In short: repo-harness is more mature on almost every measurable axis
+right now (more published versions, more GitHub stars, a working Codex adapter, five documentation
+languages). What AgenticWorkspace does differently is a smaller, two-interface plugin architecture
+and an explicit, read-only compatibility check for repo-harness's own `.ai/harness/` directory. If
+repo-harness already works for you, there is no reason in this table to switch.
+
+**What happens if `init` gets interrupted halfway through?**
+The next `init` run detects the leftover `.init-in-progress` marker or a missing/malformed
+`workspace.json` and either prompts you to repair, reset, or abort (interactive terminal), or
+returns a structured JSON error with exit code `2` (non-interactive or `--json` mode) instead of
+silently overwriting or resuming.
+
+**Why isn't the Codex or Cursor adapter implemented yet?**
+Both are registered in the `Adapter` plugin interface with `isImplemented: false` and a real, honest
+`describe()` string rather than a silent no-op. Claude Code was built first because that is the
+adapter this repo's own workflow was built and tested against. Contributions implementing either are
+welcome, see [Extending AgenticWorkspace](#extending-agenticworkspace).
+
+**Is there a hosted dashboard or paid tier?**
+Not in this repository. This CLI is the free, local, MIT-comparable (Apache-2.0) layer. There is no
+hosted component here to sign up for.
+
+**What license is this, and can I use it commercially?**
+Apache License 2.0 (see [LICENSE](./LICENSE)). It permits commercial use, modification, private
+use, and distribution, and includes an express patent grant, subject to preserving the license and
+copyright notice and carrying no warranty.
+
+**Is there a Python version?**
+Yes -- a genuine Python port (not a wrapper around the Node binary), with the same CLI shape, the
+same `.workspace/` output, and the same `MemoryBackend`/`Adapter` plugin contract. See
+[`python/README.md`](./python/README.md) for the Python-specific install and usage walkthrough.
 
 ## Contributing
 
