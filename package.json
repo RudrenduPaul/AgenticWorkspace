@@ -1,6 +1,6 @@
 {
   "name": "agenticworkspace-cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "CLI that converts any repository into an agent-ready workspace: detects your stack, scaffolds a .workspace/ directory with progressive context loading and session handoffs, and installs a working Claude Code adapter out of the box.",
   "keywords": [
     "cli",
