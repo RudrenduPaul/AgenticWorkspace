@@ -25,11 +25,9 @@ agenticworkspace init
 pip install agenticworkspace-cli
 ```
 
-*Not live yet as of this writing -- the Python package is built and tested,
-but the first PyPI upload is blocked by PyPI's own new-project rate limit
-(account-level, not a code issue). Until it clears, install from source:
-`git clone` this repo, `cd python && pip install -e .`. See the root
-[README](../README.md#install) for the current status.*
+The PyPI package is live and installable today. See the root
+[README](../README.md#install) for the full install matrix (npm, PyPI, and
+from-source options for both).
 
 ## Your first run
 
