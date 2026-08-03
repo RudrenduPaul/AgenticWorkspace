@@ -23,25 +23,13 @@ independent port, not a wrapper around the Node binary.
 
 ## Install
 
-**Not yet live on PyPI.** This Python package is built, tested (132/132
-pytest tests passing), and verified end-to-end from a real built wheel in a
-fresh virtualenv -- publishing itself is blocked by PyPI's own
-new-project-creation anti-abuse rate limit (`429 Too many new projects
-created`) on this account, confirmed across two upload attempts. That is an
-account-level PyPI throttle, not a problem with this code; it will be
-retried once the limit clears. Until then:
-
-```bash
-git clone https://github.com/RudrenduPaul/AgenticWorkspace.git
-cd AgenticWorkspace/python
-pip install -e .
-agenticworkspace init --path /path/to/your/repo
-```
-
-Once published, the intended install is:
+**The PyPI package is now live.** This Python package is built, tested
+(132/132 pytest tests passing), and verified end-to-end from a real built
+wheel in a fresh virtualenv.
 
 ```bash
 pip install agenticworkspace-cli
+agenticworkspace init --path /path/to/your/repo
 ```
 
 or with [uv](https://docs.astral.sh/uv/):
@@ -50,8 +38,17 @@ or with [uv](https://docs.astral.sh/uv/):
 uv add agenticworkspace-cli
 ```
 
-The npm package (`agenticworkspace-cli`, TypeScript) is unaffected and
-already live -- see [Install](../README.md#install) in the project README.
+To install from source instead:
+
+```bash
+git clone https://github.com/RudrenduPaul/AgenticWorkspace.git
+cd AgenticWorkspace/python
+pip install -e .
+agenticworkspace init --path /path/to/your/repo
+```
+
+The npm package (`agenticworkspace-cli`, TypeScript) is independent and
+also live -- see [Install](../README.md#install) in the project README.
 
 The complementary JS/TS distribution installs the same way on the npm side:
 `npx agenticworkspace-cli init` (no install needed) or
