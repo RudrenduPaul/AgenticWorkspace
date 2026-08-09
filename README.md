@@ -5,6 +5,7 @@ context and session handoffs, and installs a working Claude Code adapter, all in
 
 [![CI](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/agenticworkspace-cli.svg)](https://www.npmjs.com/package/agenticworkspace-cli)
 [![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](./package.json)
 [![PyPI version](https://img.shields.io/pypi/v/agenticworkspace-cli.svg)](https://pypi.org/project/agenticworkspace-cli/)
 
