@@ -9,11 +9,11 @@ context and session handoffs, and installs a working Claude Code adapter, all in
 [![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](./package.json)
 [![PyPI version](https://img.shields.io/pypi/v/agenticworkspace-cli.svg)](https://pypi.org/project/agenticworkspace-cli/)
 
+![AgenticWorkspace init: npx agenticworkspace-cli init scans a repo and scaffolds a .workspace/ directory with a Claude Code adapter, recorded from the real published npm package](./docs/demo.gif)
+
 ```bash
 npx agenticworkspace-cli init
 ```
-
-![AgenticWorkspace init: npx agenticworkspace-cli init scans a repo and scaffolds a .workspace/ directory with a Claude Code adapter, recorded from the real published npm package](./docs/demo.gif)
 
 This is a v0.1 release. Zero installs, zero GitHub stars, first release. 99/99 tests pass. It does
 what's described below and nothing more. There's an honest comparison against the other tools
