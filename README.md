@@ -239,6 +239,8 @@ without parsing text:
 | Codex | Registered, not yet implemented |
 | Cursor | Registered, not yet implemented |
 
+![AgenticWorkspace adapter management: installing and inspecting the Claude Code adapter's hook wiring via the adapter subcommand, recorded from the real published npm package](./docs/demo-adapters.gif)
+
 ## Extending AgenticWorkspace
 
 AgenticWorkspace is built around two plugin interfaces, not one project doing everything itself:
