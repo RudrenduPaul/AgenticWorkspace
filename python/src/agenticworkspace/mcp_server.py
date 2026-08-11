@@ -21,11 +21,50 @@ from mcp.server.mcpserver import MCPServer
 
 _TIMEOUT_SECONDS = 120
 _FALLBACK_DESCRIPTION = (
-    "Run the agenticworkspace CLI with the given argument list (e.g. "
-    '["init", "--json", "--path", "/path/to/repo"]) and return its result. '
-    "Subcommands: init, scan, status, adapter install <name>, handoff new "
-    '<message>. Pass "--json" to get structured output back as a dict; '
-    'otherwise the raw stdout text is returned under "output".'
+    "Runs the agenticworkspace CLI (the same tool published as "
+    "`agenticworkspace-cli` on PyPI and npm) as a subprocess and returns its "
+    "result as structured JSON. Call this when an agent needs to turn a "
+    "repository into an agent-ready workspace: detect its stack, scaffold a "
+    "`.workspace/` directory with progressive context, install a Claude "
+    "Code adapter, or record a session handoff -- instead of shelling out "
+    "to the CLI manually or parsing its human-readable text output.\n\n"
+    "Usage guidelines: call `scan` first on an unfamiliar repo (read-only, "
+    "safe to call any time) to see the detected stack before deciding "
+    "whether to run `init`. Call `init` once to scaffold the workspace; "
+    "re-running it is safe but overwrites the existing scaffold rather than "
+    "creating a duplicate, so don't call it in a loop. Call `status` to "
+    "check workspace health (context budget, handoff history, adapter "
+    "staleness) before deciding whether `init` needs to be re-run. Use "
+    "`adapter install <name>` to (re)install one specific tool adapter, and "
+    "`handoff new <message>` at the end of a session to leave a note for "
+    "the next one. No API keys or network access are required; the only "
+    "prerequisite is filesystem access to the target repo at `--path`.\n\n"
+    "Behavioral transparency: this is a local subprocess call with a "
+    f"{_TIMEOUT_SECONDS}s timeout -- it never touches the network. `scan` "
+    "and `status` are strictly read-only. `init`, `adapter install`, and "
+    "`handoff new` are mutating: they write files under `<path>/.workspace/` "
+    "and are idempotent (safe to re-run, later runs overwrite rather than "
+    "duplicate). This tool never raises on failure: a missing binary, a "
+    "timed-out process, a non-zero exit, or unparsable stdout all come back "
+    "as a JSON dict containing an \"error\" key instead of an exception, so "
+    "check for that key before assuming success.\n\n"
+    "Parameter semantics: `args` is a flat list[str] of literal CLI argv -- "
+    "exactly what you would type after `agenticworkspace ` on a command "
+    "line. Always include \"--json\" to get a structured dict back; without "
+    'it the raw text is returned under an "output" key. Real examples:\n'
+    '  ["init", "--json", "--path", "/path/to/repo"]\n'
+    '  ["scan", "--json", "--path", "/path/to/repo"]\n'
+    '  ["status", "--json", "--path", "/path/to/repo"]\n'
+    '  ["adapter", "install", "claude-code", "--json", "--path", "/path/to/repo"]\n'
+    '  ["handoff", "new", "Finished the auth refactor", "--json", "--path", "/path/to/repo"]\n\n'
+    "Contextual completeness: on success, `init`/`scan`/`status` return keys "
+    'such as "ok", "agenticworkspace_version", "target", "stack" '
+    '(language/package_manager/monorepo/packages), "existing_config", '
+    '"memory_backends", "context" (root_context_kb/budget_kb/modules), and '
+    '"adapters"; `init` additionally returns "workspace_dir". On failure '
+    'expect {"error", "returncode", "stdout", "stderr"}. Pass "--help" as '
+    'an argv item (e.g. ["adapter", "install", "--help"]) on any '
+    "subcommand to discover its exact flags without guessing."
 )
 
 
@@ -42,10 +81,14 @@ def _resolve_cli_command() -> list[str]:
 
 
 def _tool_description() -> str:
-    """Builds the `run` tool's description from the CLI's real `--help`
-    output at import time, so what an agent sees never drifts from the
-    actual command surface. Falls back to a static description if the CLI
-    can't be introspected -- this function must never raise."""
+    """Builds the `run` tool's description by appending the CLI's real
+    `--help` output to the static prose in `_FALLBACK_DESCRIPTION`, so what
+    an agent sees combines a genuinely explanatory description (purpose,
+    when to call it, side effects, parameter shape, return shape) with the
+    live command surface -- it never drifts from the actual subcommands and
+    flags the installed CLI supports. Falls back to the static description
+    alone if the CLI can't be introspected -- this function must never
+    raise."""
     try:
         command = _resolve_cli_command() + ["--help"]
         result = subprocess.run(command, capture_output=True, text=True, timeout=10, check=False)
@@ -55,8 +98,8 @@ def _tool_description() -> str:
     if not help_text:
         return _FALLBACK_DESCRIPTION
     return (
-        "Run the agenticworkspace CLI with the given argument list and return "
-        f"its result. Real `agenticworkspace --help` output:\n\n{help_text}"
+        f"{_FALLBACK_DESCRIPTION}\n\n"
+        f"Live `agenticworkspace --help` output from the installed CLI:\n\n{help_text}"
     )
 
 

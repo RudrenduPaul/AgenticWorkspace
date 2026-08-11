@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agenticworkspace-cli"
-version = "0.1.4"
+version = "0.1.5"
 description = "CLI that converts any repo into an agent-ready workspace: detects your stack, scaffolds progressive context and session handoffs, installs a real Claude Code adapter. Extensible plugin architecture for memory backends and coding-agent adapters."
 readme = "README.md"
 requires-python = ">=3.9"
