@@ -1,3 +1,4 @@
+<!-- mcp-name: io.github.RudrenduPaul/agenticworkspace -->
 # AgenticWorkspace
 
 [![CI](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml)
@@ -209,6 +210,40 @@ without parsing text:
 | `2` | Partial/malformed `.workspace/` state detected |
 | `3` | Adapter not yet implemented (`codex`, `cursor`) |
 | `4` | No `.workspace/` found (run `init` first) |
+
+## MCP Server
+
+The Python package ships a Model Context Protocol (MCP) server, so an MCP-capable agent (Claude
+Desktop, Claude Code, or any other MCP client) can call AgenticWorkspace as a tool instead of
+shelling out to the CLI and parsing text itself.
+
+```bash
+pip install "agenticworkspace-cli[mcp]"
+```
+
+Add it to your MCP client config (stdio transport):
+
+```json
+{
+  "mcpServers": {
+    "agenticworkspace": {
+      "command": "agenticworkspace-mcp"
+    }
+  }
+}
+```
+
+It exposes a single tool, `run(args: list[str]) -> dict`, that shells out to the installed
+`agenticworkspace` CLI with the given argument list and returns its parsed result -- every
+subcommand (`init`, `scan`, `status`, `adapter install`, `handoff new`) is reachable through it, so
+the MCP surface never drifts out of sync with the CLI as new subcommands are added. Every failure
+mode (missing binary, timeout, non-zero exit, unparsable output) comes back as a `{"error": ...}`
+dict instead of raising. Example call and result:
+
+```
+run(["scan", "--json", "--path", "/path/to/repo"])
+-> {"ok": true, "target": "/path/to/repo", "stack": {"language": "javascript", ...}, ...}
+```
 
 ## The `.workspace/` directory
 
