@@ -1,19 +1,20 @@
+<!-- mcp-name: io.github.RudrenduPaul/agenticworkspace -->
 # AgenticWorkspace
+
+[![CI](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/agenticworkspace-cli.svg)](https://www.npmjs.com/package/agenticworkspace-cli)
+[![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](./package.json)
+[![PyPI version](https://img.shields.io/pypi/v/agenticworkspace-cli.svg)](https://pypi.org/project/agenticworkspace-cli/)
 
 Point it at any repo. It detects the stack, writes a `.workspace/` directory with progressive
 context and session handoffs, and installs a working Claude Code adapter, all in one command.
 
-[![CI](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
-[![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](./package.json)
-[![npm version](https://img.shields.io/npm/v/agenticworkspace-cli.svg)](https://www.npmjs.com/package/agenticworkspace-cli)
-[![PyPI version](https://img.shields.io/pypi/v/agenticworkspace-cli.svg)](https://pypi.org/project/agenticworkspace-cli/)
+![AgenticWorkspace init: npx agenticworkspace-cli init scans a repo and scaffolds a .workspace/ directory with a Claude Code adapter, recorded from the real published npm package](./docs/demo.gif)
 
 ```bash
 npx agenticworkspace-cli init
 ```
-
-![AgenticWorkspace init: node dist/agenticworkspace/cli.js init scans a repo and scaffolds a .workspace/ directory with a Claude Code adapter, recorded from a real run of the built CLI against a two-file JavaScript test repo](./docs/demo.gif)
 
 This is a v0.1 release. Zero installs, zero GitHub stars, first release. 99/99 JavaScript tests
 and 132/132 Python tests pass. It does what's described below and nothing more. There's an
@@ -121,7 +122,6 @@ Everything below is verified against the actual source in this repo, not aspirat
   surfaced (interactive repair/reset/abort prompt, or a structured JSON error with a dedicated exit
   code in `--json` mode) instead of being silently overwritten or resumed
   (`src/agenticworkspace/state/partial-state.ts`).
-
 ## Quickstart
 
 A real run against a small two-file JavaScript repo (target path shortened to `/Users/you/my-app`
@@ -225,6 +225,40 @@ Handoff written: .workspace/handoff/2026-08-04-0618.md
 
 See [docs/usage.gif](./docs/usage.gif) for a recorded run of `handoff new` and `status` together.
 
+## Features
+
+Everything below is verified against the actual source in this repo, not aspirational.
+
+- **Real stack detection** -- language (JavaScript/TypeScript, Python, lighter-weight signals for
+  Rust/Go/Ruby), package manager (npm/pnpm/yarn), and monorepo package count, read from real
+  manifest files (`src/agenticworkspace/scan/stack-detector.ts`).
+- **Non-destructive by default** -- checks for `CLAUDE.md`, `AGENTS.md`, `.cursor/rules`, and
+  `.github/copilot-instructions.md` and never overwrites them
+  (`src/agenticworkspace/scan/config-detector.ts`).
+- **Detects other agent-memory tooling without touching it** -- looks for a `.serena/` directory, a
+  GitNexus-style config, or repo-harness's own `.ai/harness/` directory, reports what it finds, and
+  never reads or writes any of them (`src/agenticworkspace/memory-backends/`).
+- **A real, working Claude Code adapter** -- writes actual hook scripts for session start,
+  pre-tool-call, and session-end handoff generation, wired into
+  `.workspace/adapters/claude-code/settings.json`
+  (`src/agenticworkspace/adapters/claude-code/install.ts`).
+- **Structured JSON output on every subcommand** -- `init`, `scan`, `status`, `adapter install`, and
+  `handoff new` all support `--json`, including on error paths (a nonexistent `--path`, a missing
+  workspace, an unimplemented adapter), so a calling agent never has to parse human-readable text
+  or guess at exit codes.
+- **Two documented plugin interfaces, not a hardcoded pipeline** -- `MemoryBackend`
+  (`src/agenticworkspace/memory-backends/types.ts`) and `Adapter`
+  (`src/agenticworkspace/adapters/types.ts`). Adding a new tool means implementing one interface
+  and registering it (`registry.ts` in each folder); no changes to CLI or scan code are required.
+  See [Extending AgenticWorkspace](#extending-agenticworkspace) below.
+- **Shell-injection-safe hook generation** -- every scanned value (module names, paths) that ends
+  up embedded in a generated shell script passes through an allowlist and quoting check first
+  (`src/agenticworkspace/util/sanitize.ts`), covered by 30 dedicated unit tests.
+- **Partial-state recovery** -- an interrupted or malformed prior `init` run is detected and
+  surfaced (interactive repair/reset/abort prompt, or a structured JSON error with a dedicated exit
+  code in `--json` mode) instead of being silently overwritten or resumed
+  (`src/agenticworkspace/state/partial-state.ts`).
+
 ## CLI reference
 
 Every command accepts `-p, --path <path>` (defaults to the current directory) and `--json`
@@ -250,6 +284,40 @@ IMPLEMENTED" message, and `status` against a target with no `.workspace/` exits 
 | `2` | Partial/malformed `.workspace/` state detected |
 | `3` | Adapter not yet implemented (`codex`, `cursor`) |
 | `4` | No `.workspace/` found (run `init` first) |
+
+## MCP Server
+
+The Python package ships a Model Context Protocol (MCP) server, so an MCP-capable agent (Claude
+Desktop, Claude Code, or any other MCP client) can call AgenticWorkspace as a tool instead of
+shelling out to the CLI and parsing text itself.
+
+```bash
+pip install "agenticworkspace-cli[mcp]"
+```
+
+Add it to your MCP client config (stdio transport):
+
+```json
+{
+  "mcpServers": {
+    "agenticworkspace": {
+      "command": "agenticworkspace-mcp"
+    }
+  }
+}
+```
+
+It exposes a single tool, `run(args: list[str]) -> dict`, that shells out to the installed
+`agenticworkspace` CLI with the given argument list and returns its parsed result -- every
+subcommand (`init`, `scan`, `status`, `adapter install`, `handoff new`) is reachable through it, so
+the MCP surface never drifts out of sync with the CLI as new subcommands are added. Every failure
+mode (missing binary, timeout, non-zero exit, unparsable output) comes back as a `{"error": ...}`
+dict instead of raising. Example call and result:
+
+```
+run(["scan", "--json", "--path", "/path/to/repo"])
+-> {"ok": true, "target": "/path/to/repo", "stack": {"language": "javascript", ...}, ...}
+```
 
 ## The `.workspace/` directory
 
@@ -339,6 +407,8 @@ type checkers pick up its stubs without extra configuration.
 | Claude Code | Implemented, works end to end |
 | Codex | Registered, not yet implemented |
 | Cursor | Registered, not yet implemented |
+
+![AgenticWorkspace adapter management: installing and inspecting the Claude Code adapter's hook wiring via the adapter subcommand, recorded from the real published npm package](./docs/demo-adapters.gif)
 
 ## Extending AgenticWorkspace
 

@@ -9,6 +9,40 @@ distribution they apply to. The two packages are versioned independently
 (same convention as this account's `skillguard-cli`), so a "Python 0.1.0"
 entry does not imply a matching npm 0.1.0 release, and vice versa.
 
+## [npm 0.1.5] - 2026-08-08
+
+### Fixed
+
+- `AGENTICWORKSPACE_VERSION` was a hand-maintained constant in
+  `src/agenticworkspace/scaffold/init-engine.ts` that was supposed to be kept
+  in sync with `package.json` on every release but wasn't -- the published
+  npm package reached 0.1.4 while the constant still read `0.1.1`, three
+  releases stale. This silently handed every `--version` call, every
+  subcommand's JSON output (`agenticworkspace_version`), and every
+  `.workspace/workspace.json` manifest a wrong version number, including to
+  agents parsing the documented `--json` output programmatically. The
+  constant is now read at runtime straight from the installed package's
+  `package.json` (resolved relative to the compiled module's own location,
+  so it works identically under `dist/` and `npm run dev`'s `tsx` mode), so
+  this drift can no longer happen. Covered by a new regression test
+  (`test/unit/version.test.ts`) that asserts the exported constant equals
+  `package.json`'s version.
+
+## [Python 0.1.3] - 2026-08-08
+
+### Fixed
+
+- Same root cause and fix as npm 0.1.5 above, on the Python side:
+  `AGENTICWORKSPACE_VERSION` in
+  `python/src/agenticworkspace/scaffold/init_engine.py` was a hand-maintained
+  constant that drifted out of sync with `pyproject.toml`/PyPI -- PyPI
+  reached 0.1.2 while the constant still read `0.1.0`. It now reads the real
+  installed version via `importlib.metadata.version("agenticworkspace-cli")`
+  at runtime, falling back to `0.0.0` only for an uninstalled checkout with
+  no distribution metadata. `__version__` in `agenticworkspace/__init__.py`
+  derives from this constant, so it is fixed too. Covered by a new
+  regression test (`python/tests/test_version.py`).
+
 ## [Python 0.1.0] - 2026-07-17
 
 Initial Python port, built, tested, and packaged as `agenticworkspace-cli`.

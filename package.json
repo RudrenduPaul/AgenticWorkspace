@@ -1,7 +1,7 @@
 {
   "name": "agenticworkspace-cli",
-  "version": "0.1.4",
-  "description": "CLI that converts any repository into an agent-ready workspace: detects your stack, scaffolds a .workspace/ directory with progressive context loading and session handoffs, and installs a working Claude Code adapter out of the box. Two documented plugin interfaces (MemoryBackend, Adapter) make it extensible without touching CLI or scan code.",
+  "version": "0.1.5",
+  "description": "CLI that converts any repository into an agent-ready workspace: detects your stack, scaffolds a .workspace/ directory with progressive context loading and session handoffs, and installs a working Claude Code adapter out of the box.",
   "keywords": [
     "cli",
     "ai-agents",
@@ -10,9 +10,7 @@
     "developer-tools",
     "context-management",
     "session-handoff",
-    "devex",
-    "typescript",
-    "plugin-architecture"
+    "devex"
   ],
   "homepage": "https://github.com/RudrenduPaul/AgenticWorkspace#readme",
   "bugs": {

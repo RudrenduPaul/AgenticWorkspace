@@ -1,4 +1,6 @@
 import path from "node:path";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { detectStack, type StackDetectionResult } from "../scan/stack-detector.js";
 import { detectExistingConfig, type ExistingConfigResult } from "../scan/config-detector.js";
 import { detectAllMemoryBackends, type MemoryBackendDetectionResult } from "../memory-backends/registry.js";
@@ -14,8 +16,33 @@ import {
 import { writeInProgressMarker, removeInProgressMarker } from "../state/partial-state.js";
 import { ensureDir } from "../util/fs-utils.js";
 
-/** package.json version is not read at runtime to avoid a fs round trip on every run; kept in sync manually with package.json. */
-export const AGENTICWORKSPACE_VERSION = "0.1.1";
+/**
+ * Read the real published version straight from package.json instead of a
+ * hardcoded string. A hand-maintained constant here previously drifted out
+ * of sync with the actual package.json/npm version on every release (found
+ * shipping "0.1.1" while npm had already published 0.1.4), silently handing
+ * every --version call, JSON output, and workspace.json manifest a stale
+ * version. This file compiles to the same relative depth under both dist/
+ * (built) and src/ (tsx dev mode) -- three directories up from here is
+ * always the package root.
+ */
+function readPackageVersion(): string {
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const packageJsonPath = path.join(here, "../../../package.json");
+    const raw = readFileSync(packageJsonPath, "utf-8");
+    const parsed = JSON.parse(raw) as { version?: unknown };
+    if (typeof parsed.version === "string" && parsed.version.length > 0) {
+      return parsed.version;
+    }
+  } catch {
+    // Fall through to the fallback below -- e.g. an unusual install layout
+    // where package.json isn't reachable at the expected relative depth.
+  }
+  return "0.0.0";
+}
+
+export const AGENTICWORKSPACE_VERSION = readPackageVersion();
 
 export interface InitEngineResult {
   repoPath: string;

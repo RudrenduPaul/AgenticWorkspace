@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from importlib import metadata as _importlib_metadata
 
 from ..adapters.claude_code.install import claude_code_adapter
 from ..adapters.types import AdapterInstallOptions
@@ -27,12 +28,26 @@ from .workspace_manifest import (
     write_manifest,
 )
 
-# pyproject.toml version is not read at runtime to avoid a fs round trip on
-# every run; kept in sync manually with pyproject.toml. This intentionally
-# tracks this Python package's own release number (0.1.0 for the initial
-# PyPI release), not the npm package's version -- the two distributions are
-# versioned independently, same as skillguard-cli's two packages.
-AGENTICWORKSPACE_VERSION = "0.1.0"
+
+def _read_package_version() -> str:
+    """
+    Read the real installed version from package metadata instead of a
+    hand-maintained constant. The previous hardcoded string drifted out of
+    sync with pyproject.toml/PyPI on every release (found shipping "0.1.0"
+    while PyPI had already published 0.1.2), silently handing every
+    --version call and workspace.json manifest a stale version. This
+    intentionally tracks this Python package's own release number, not the
+    npm package's -- the two distributions are versioned independently, same
+    as skillguard-cli's two packages. Falls back to "0.0.0" for an editable
+    "pip install -e ." checkout with no installed distribution metadata.
+    """
+    try:
+        return _importlib_metadata.version("agenticworkspace-cli")
+    except _importlib_metadata.PackageNotFoundError:
+        return "0.0.0"
+
+
+AGENTICWORKSPACE_VERSION = _read_package_version()
 
 
 @dataclass
