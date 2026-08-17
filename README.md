@@ -16,10 +16,27 @@ context and session handoffs, and installs a working Claude Code adapter, all in
 npx agenticworkspace-cli init
 ```
 
-This is a v0.1 release. Zero installs, zero GitHub stars, first release. 99/99 tests pass. It does
-what's described below and nothing more. There's an honest comparison against the other tools
-already working in this space further down, so you can decide if AgenticWorkspace is actually
-worth trying before you run it.
+This is a v0.1 release. Zero installs, zero GitHub stars, first release. 99/99 JavaScript tests
+and 132/132 Python tests pass. It does what's described below and nothing more. There's an
+honest comparison against the other tools already working in this space further down, so you can
+decide if AgenticWorkspace is actually worth trying before you run it.
+
+## Table of contents
+
+- [Install](#install)
+- [Features](#features)
+- [Quickstart](#quickstart)
+- [CLI reference](#cli-reference)
+- [The `.workspace/` directory](#the-workspace-directory)
+- [Library API reference](#library-api-reference)
+- [Adapter status](#adapter-status-v01)
+- [Extending AgenticWorkspace](#extending-agenticworkspace)
+- [How this compares to repo-harness and harnesskit](#how-this-compares-to-repo-harness-and-harnesskit)
+- [What and why](#what-and-why)
+- [Development](#development)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Install
 
@@ -29,14 +46,12 @@ implement the same scan/scaffold/adapter pipeline and read/write the same
 install both. Neither is deprecated in favor of the other.
 
 ```bash
-# npm -- JavaScript/TypeScript CLI + library (live today)
+# npm -- JavaScript/TypeScript CLI + library (live today, v0.1.3)
 npx agenticworkspace-cli init
 ```
 
-**The PyPI package is now live.** The Python port is built, tested
-(132/132 pytest tests), and verified end-to-end from a real built wheel.
-
 ```bash
+# PyPI -- Python CLI + library (live today, v0.1.1)
 pip install agenticworkspace-cli
 agenticworkspace init --path /path/to/your/repo
 ```
@@ -73,9 +88,44 @@ npm run build
 node dist/agenticworkspace/cli.js init
 ```
 
+## Features
+
+Everything below is verified against the actual source in this repo, not aspirational.
+
+- **Real stack detection** -- language (JavaScript/TypeScript, Python, lighter-weight signals for
+  Rust/Go/Ruby), package manager (npm/pnpm/yarn), and monorepo package count, read from real
+  manifest files (`src/agenticworkspace/scan/stack-detector.ts`).
+- **Non-destructive by default** -- checks for `CLAUDE.md`, `AGENTS.md`, `.cursor/rules`, and
+  `.github/copilot-instructions.md` and never overwrites them
+  (`src/agenticworkspace/scan/config-detector.ts`).
+- **Detects other agent-memory tooling without touching it** -- looks for a `.serena/` directory, a
+  GitNexus-style config, or repo-harness's own `.ai/harness/` directory, reports what it finds, and
+  never reads or writes any of them (`src/agenticworkspace/memory-backends/`).
+- **A real, working Claude Code adapter** -- writes actual hook scripts for session start,
+  pre-tool-call, and session-end handoff generation, wired into
+  `.workspace/adapters/claude-code/settings.json`
+  (`src/agenticworkspace/adapters/claude-code/install.ts`).
+- **Structured JSON output on every subcommand** -- `init`, `scan`, `status`, `adapter install`, and
+  `handoff new` all support `--json`, including on error paths (a nonexistent `--path`, a missing
+  workspace, an unimplemented adapter), so a calling agent never has to parse human-readable text
+  or guess at exit codes.
+- **Two documented plugin interfaces, not a hardcoded pipeline** -- `MemoryBackend`
+  (`src/agenticworkspace/memory-backends/types.ts`) and `Adapter`
+  (`src/agenticworkspace/adapters/types.ts`). Adding a new tool means implementing one interface
+  and registering it (`registry.ts` in each folder); no changes to CLI or scan code are required.
+  See [Extending AgenticWorkspace](#extending-agenticworkspace) below.
+- **Shell-injection-safe hook generation** -- every scanned value (module names, paths) that ends
+  up embedded in a generated shell script passes through an allowlist and quoting check first
+  (`src/agenticworkspace/util/sanitize.ts`), covered by 30 dedicated unit tests (confirmed by
+  running the suite directly, including the parameterized rejection cases).
+- **Partial-state recovery** -- an interrupted or malformed prior `init` run is detected and
+  surfaced (interactive repair/reset/abort prompt, or a structured JSON error with a dedicated exit
+  code in `--json` mode) instead of being silently overwritten or resumed
+  (`src/agenticworkspace/state/partial-state.ts`).
 ## Quickstart
 
-A real run against a small two-file JavaScript repo, output unedited:
+A real run against a small two-file JavaScript repo (target path shortened to `/Users/you/my-app`
+for readability, every field value below is the actual output):
 
 ```bash
 $ agenticworkspace init --json --path ./my-app
@@ -83,7 +133,7 @@ $ agenticworkspace init --json --path ./my-app
 {
   "ok": true,
   "agenticworkspace_version": "0.1.1",
-  "scanned_at": "2026-07-15T04:56:35.727Z",
+  "scanned_at": "2026-08-04T06:18:25.620Z",
   "target": "/Users/you/my-app",
   "stack": {
     "language": "javascript",
@@ -109,7 +159,11 @@ $ agenticworkspace init --json --path ./my-app
 }
 ```
 
-That single run wrote six real files on disk:
+The `agenticworkspace_version` field in that output is a version string tracked separately from
+the package's own npm/PyPI version (they can drift; treat it as an internal schema marker, not the
+package version you installed).
+
+That single run wrote seven real files on disk:
 
 ```
 .workspace/workspace.json
@@ -149,9 +203,27 @@ Workspace ready. Next Claude Code session in this repo will load root-context.md
 and write a handoff file on exit.
 ```
 
-Writing a session handoff and checking workspace health from a second, already-initialized repo:
+Checking workspace health and writing a session handoff on that same repo, real output:
 
-![AgenticWorkspace handoff and status: npx agenticworkspace-cli handoff new writes a timestamped handoff file, then npx agenticworkspace-cli status reports stack, context budget, and adapter health, recorded from the real published npm package](./docs/usage.gif)
+```bash
+$ agenticworkspace status --path ./my-app
+
+AgenticWorkspace status
+Target: /Users/you/my-app
+Last scan: 2026-08-04T06:18:25.620Z
+
+Stack: javascript, npm, 1 package(s)
+Context budget: 0.6KB of 12KB (0 module block(s))
+Handoffs: 0 file(s), most recent: none
+Claude Code adapter: installed, schema 2026-07-01, current
+Other backends detected: none
+
+$ agenticworkspace handoff new "test session" --path ./my-app
+
+Handoff written: .workspace/handoff/2026-08-04-0618.md
+```
+
+See [docs/usage.gif](./docs/usage.gif) for a recorded run of `handoff new` and `status` together.
 
 ## Features
 
@@ -190,7 +262,8 @@ Everything below is verified against the actual source in this repo, not aspirat
 ## CLI reference
 
 Every command accepts `-p, --path <path>` (defaults to the current directory) and `--json`
-(structured output instead of the human-readable default).
+(structured output instead of the human-readable default). Reference below is the actual
+`--help` output from a locally built `agenticworkspace` binary.
 
 | Command | Description |
 |---|---|
@@ -201,7 +274,8 @@ Every command accepts `-p, --path <path>` (defaults to the current directory) an
 | `agenticworkspace handoff new <message>` | Write a new timestamped session handoff file under `.workspace/handoff/`. |
 
 Exit codes are stable across `--json` and human-readable modes, so a script can branch on them
-without parsing text:
+without parsing text. Verified directly: `adapter install codex` exits `3` with a "NOT YET
+IMPLEMENTED" message, and `status` against a target with no `.workspace/` exits `4`.
 
 | Code | Meaning |
 |---|---|
@@ -266,6 +340,66 @@ run(["scan", "--json", "--path", "/path/to/repo"])
         session-end-handoff.sh writes the next handoff/ file automatically
 ```
 
+## Library API reference
+
+Both packages export their scan/scaffold/adapter logic for programmatic use in addition to the
+CLI binary. Signatures below are grepped directly from source.
+
+### TypeScript (`agenticworkspace-cli`, `src/agenticworkspace/index.ts`)
+
+```typescript
+import {
+  detectStack,
+  detectExistingConfig,
+  memoryBackendRegistry,
+  detectAllMemoryBackends,
+  adapterRegistry,
+  getAdapter,
+  runInitEngine,
+  readManifest,
+  writeManifest,
+  sanitizeForShellEmbedding,
+  validateAgainstAllowlist,
+  shellQuote,
+} from "agenticworkspace-cli";
+
+async function detectStack(repoPath: string): Promise<StackDetectionResult>;
+async function detectExistingConfig(repoPath: string): Promise<ExistingConfigResult>;
+async function runInitEngine(repoPath: string, workspaceDir: string): Promise<InitEngineResult>;
+function getAdapter(name: string): Adapter | undefined;
+async function readManifest(workspaceDir: string): Promise<WorkspaceManifest | null>;
+async function writeManifest(workspaceDir: string, manifest: WorkspaceManifest): Promise<void>;
+function sanitizeForShellEmbedding(
+  rawValue: unknown,
+  warn?: SanitizeWarning,
+  options?: SanitizeForShellOptions,
+): string | null;
+function validateAgainstAllowlist(rawValue: unknown): SanitizeResult;
+function shellQuote(value: string): string;
+```
+
+`MemoryBackend` and `Adapter` are exported as TypeScript types for anyone implementing a new
+plugin (`src/agenticworkspace/memory-backends/types.ts`, `src/agenticworkspace/adapters/types.ts`).
+
+### Python (`agenticworkspace-cli` on PyPI, `python/src/agenticworkspace/__init__.py`)
+
+```python
+from agenticworkspace import (
+    adapter_registry,
+    get_adapter,
+    memory_backend_registry,
+    detect_all_memory_backends,
+    Adapter,
+    MemoryBackend,
+    AGENTICWORKSPACE_VERSION,
+)
+```
+
+`Adapter` and `MemoryBackend` are `abc.ABC` classes here rather than TypeScript interfaces --
+implement one, add an instance to `adapter_registry` or `memory_backend_registry` (plain Python
+lists), and no CLI or scan code changes are required. The package ships a `py.typed` marker, so
+type checkers pick up its stubs without extra configuration.
+
 ## Adapter status (v0.1)
 
 | Adapter | Status |
@@ -288,7 +422,8 @@ AgenticWorkspace is built around two plugin interfaces, not one project doing ev
 Adding support for a new tool means implementing one of these interfaces and registering an
 instance in that folder's `registry.ts`; no changes to the CLI or scan code are required. See
 `src/agenticworkspace/adapters/codex/` and `.../cursor/` for the shape a not-yet-implemented stub
-takes, and `.../claude-code/` for a fully working reference implementation.
+takes (`isImplemented: false` plus a real `describe()` string), and `.../claude-code/` for a fully
+working reference implementation.
 
 The Python package (`pip install agenticworkspace-cli`) implements the same two interfaces as
 `abc.ABC` classes with the same registration contract (`memory_backend_registry` /
@@ -300,18 +435,18 @@ both languages.
 
 Repo-local context and session-handoff tracking for coding agents is not a new idea. Before
 building this, we checked what's already shipping. Two npm packages cover overlapping ground, and
-their current state (checked 2026-07-14) matters more than any of our own claims about them:
+their current state (checked 2026-08-03) matters more than any of our own claims about them:
 
-| | **AgenticWorkspace** v0.1.1 | **repo-harness** v0.10.0 | **harnesskit** v0.1.1 |
+| | **AgenticWorkspace** v0.1.3 (npm) / v0.1.1 (PyPI) | **repo-harness** v0.13.0 | **harnesskit** v0.1.1 |
 |---|---|---|---|
-| npm activity | 1 published version (0.1.1), published 2026-07-15 | 38 published versions, created 2026-05-28, last published 2026-07-14 (today) | 2 published versions, last published 2026-03-20 (about 4 months stale) |
-| GitHub | 0 stars (new repo) | 391 stars, 24 forks, pushed within the last day | GitHub repo now returns 404, cannot inspect source |
+| npm activity | 3 published versions (0.1.1 -> 0.1.3), created 2026-07-15, most recently published 2026-08-04 | 46 published versions, created 2026-05-28, last published 2026-08-03 (same day as this check) | 2 published versions, last published 2026-03-20 (about 4.5 months stale as of this check) |
+| GitHub | 0 stars, 0 forks (new repo) | 402 stars, 29 forks, pushed 2026-08-03 | GitHub repo now returns 404, cannot inspect source |
 | Claude Code adapter | Implemented end to end: real hook scripts + `settings.json` wiring, installed by `init` in the same run that creates the workspace | Implemented: `~/.claude/settings.json` hook adapter | Unverified, could not inspect source or README (npm page blocked our fetch, GitHub repo gone) |
 | Codex adapter | Registered in the adapter interface, `install()` throws "not yet implemented" -- honest stub, not a silent no-op | Implemented: `~/.codex/hooks.json` adapter | Unverified |
-| Cursor adapter | Registered, same honest-stub pattern as Codex | Mentioned in architecture docs; we could not confirm it's fully implemented the way the Claude/Codex adapters are | Unverified |
-| Progressive context loading | Budget-targeted root context file (~12KB) plus per-module capability blocks, loaded on demand | Budget-targeted root context (~12KB) via `.ai/context/context-map.json`, backed by a CodeGraph structural index we do not build | Unverified |
-| Session handoff files | Timestamped file per session under `handoff/` | `.ai/harness/handoff/resume.md` plus `tasks/current.md` | Unverified |
-| CLI JSON output | Every subcommand (`scan`, `status`, `adapter install`, `handoff`) supports `--json`, including error paths | Has JSON output on at least `--dry-run --json` and `--state --json` | Unverified |
+| Cursor adapter | Registered, same honest-stub pattern as Codex | Not mentioned anywhere in the current README (a prior comparison found it referenced in architecture docs; that reference is gone as of this check) | Unverified |
+| Progressive context loading | Budget-targeted root context file (~12KB) plus per-module capability blocks, loaded on demand | ~12KB stable root context plus ~1KB capability contracts loaded only for files actually being touched, backed by a CodeGraph structural index we do not build | Unverified |
+| Session handoff files | Timestamped file per session under `handoff/` | `.ai/harness/handoff/` directory plus `tasks/current.md`, derived from workflow artifacts | Unverified |
+| CLI JSON output | Every subcommand (`scan`, `status`, `adapter install`, `handoff`) supports `--json`, including error paths | Has JSON output on at least `--dry-run --json` and `state-snapshot --json` | Unverified |
 | Detects other tools without touching them | Yes: checks for `.serena/`, a GitNexus-style config, and repo-harness's own `.ai/harness/` directory, reports what it finds, never reads or writes any of them | Not checked -- outside scope of what we reviewed | Unverified |
 | Plugin/extension model | Two documented TypeScript interfaces (`MemoryBackend`, `Adapter`); adding a tool means implementing one and registering it, no CLI changes needed | Not verified from the README alone; would need to read source to confirm | Unverified |
 | Hosted multi-repo dashboard | Does not exist. Not planned as part of this OSS CLI. | Does not exist, self-hosted file-backed workflow only | Unverified |
@@ -322,12 +457,20 @@ directly). We did not install and run repo-harness against a real repo ourselves
 marked "implemented" for it is a README claim we read, not a claim we reproduced firsthand.
 Everything marked "unverified" for harnesskit stayed that way because its GitHub repository no
 longer resolves and its npm page blocked automated fetches; we are not going to guess at what a
-tool does from a description string.
+tool does from a description string. (A PyPI package also named `harnesskit` exists, but it is a
+different, unrelated project by a different author -- a fuzzy string-replace tool for LLM coding
+agents -- and we are not counting it here.)
+
+repo-harness's own scope has grown since we last checked it: its README now centers on a
+ChatGPT-driven MCP planning sidecar handing off to Codex for execution, on top of the
+Claude/Codex hook adapters this table already covers. That is a materially bigger surface than
+"repo-local context and handoff tracking," and worth knowing before you compare the two tools
+project-to-project rather than feature-to-feature.
 
 The honest read: repo-harness is more mature than AgenticWorkspace on almost every dimension in
 this table right now. It already has a working Claude Code adapter, a working Codex adapter, and
-five languages of documentation. It has been iterating fast (38 versions in about seven weeks). If
-you already use it and it works for you, there's no reason to switch.
+five languages of documentation. It has been iterating fast (46 versions in a little over two
+months). If you already use it and it works for you, there's no reason to switch.
 
 What we actually built differently: a plugin architecture with two small, documented interfaces
 (`MemoryBackend` for detecting other tools, `Adapter` for wiring into a specific coding agent)
@@ -423,9 +566,10 @@ never reads, writes, or deletes anything inside them.
 See the [full comparison table](#how-this-compares-to-repo-harness-and-harnesskit) above for the
 complete, dated breakdown. In short: repo-harness is more mature on almost every measurable axis
 right now (more published versions, more GitHub stars, a working Codex adapter, five documentation
-languages). What AgenticWorkspace does differently is a smaller, two-interface plugin architecture
-and an explicit, read-only compatibility check for repo-harness's own `.ai/harness/` directory. If
-repo-harness already works for you, there is no reason in this table to switch.
+languages, and a broader MCP-planner-plus-Codex-execution scope). What AgenticWorkspace does
+differently is a smaller, two-interface plugin architecture and an explicit, read-only
+compatibility check for repo-harness's own `.ai/harness/` directory. If repo-harness already works
+for you, there is no reason in this table to switch.
 
 **What happens if `init` gets interrupted halfway through?**
 The next `init` run detects the leftover `.init-in-progress` marker or a missing/malformed
@@ -450,7 +594,8 @@ copyright notice and carrying no warranty.
 
 **Is there a Python version?**
 Yes -- a genuine Python port (not a wrapper around the Node binary), with the same CLI shape, the
-same `.workspace/` output, and the same `MemoryBackend`/`Adapter` plugin contract. See
+same `.workspace/` output, and the same `MemoryBackend`/`Adapter` plugin contract, plus its own
+importable library surface (`Adapter` and `MemoryBackend` as `abc.ABC` classes). See
 [`python/README.md`](./python/README.md) for the Python-specific install and usage walkthrough.
 
 ## Contributing
