@@ -31,7 +31,7 @@ export async function detectAllMemoryBackends(
 ): Promise<MemoryBackendDetectionResult[]> {
   const results = await Promise.all(
     registry.map(async (backend) => {
-      let detected = false;
+      let detected: boolean;
       try {
         detected = await backend.detect(repoPath);
       } catch {

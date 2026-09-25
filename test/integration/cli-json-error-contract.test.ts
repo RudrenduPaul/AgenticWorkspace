@@ -24,7 +24,7 @@ describe("CLI process-level --json error contract", () => {
   it("emits a parseable JSON object with ok:false when an unexpected error escapes to the top-level catch", async () => {
     const unwritablePath = "/this/path/cannot/possibly/exist/agenticworkspace-test";
 
-    let stdout = "";
+    let stdout: string;
     try {
       const result = await execFileAsync(tsxBin, [cliEntry, "init", "--json", "--path", unwritablePath]);
       stdout = result.stdout;
