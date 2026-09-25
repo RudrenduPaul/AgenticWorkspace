@@ -9,6 +9,17 @@ distribution they apply to. The two packages are versioned independently
 (same convention as this account's `skillguard-cli`), so a "Python 0.1.0"
 entry does not imply a matching npm 0.1.0 release, and vice versa.
 
+## [npm 0.2.0] - 2026-09-24
+
+### Changed
+
+- The minimum supported Node.js version is now 20 (was 18). Node 18 is past
+  end of life.
+- Upgraded the runtime dependency `commander` from 12 to 14, and refreshed
+  all development dependencies (TypeScript 6, ESLint 10, Vitest 4).
+- npm publishing moves to npm Trusted Publishing (GitHub Actions OIDC), so
+  releases no longer use a long-lived npm token.
+
 ## [npm 0.1.5] - 2026-08-08
 
 ### Fixed
