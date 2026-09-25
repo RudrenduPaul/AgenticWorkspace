@@ -4,7 +4,7 @@
 [![CI](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml/badge.svg)](https://github.com/RudrenduPaul/AgenticWorkspace/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![npm version](https://img.shields.io/npm/v/agenticworkspace-cli.svg)](https://www.npmjs.com/package/agenticworkspace-cli)
-[![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](./package.json)
+[![Node >= 20](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](./package.json)
 [![PyPI version](https://img.shields.io/pypi/v/agenticworkspace-cli.svg)](https://pypi.org/project/agenticworkspace-cli/)
 
 Point it at any repo. It detects the stack, writes a `.workspace/` directory with progressive
@@ -519,7 +519,7 @@ npm test
 
 99/99 tests pass as of this release. Before opening a pull request, run `npm run lint`,
 `npm run typecheck`, `npm run test:coverage`, and `npm run build` -- the same steps CI runs on
-Node 18.x and 20.x.
+Node 20.x and 22.x.
 
 For the Python package instead:
 
@@ -545,7 +545,7 @@ hardcoded pipeline, so adding a new coding-agent adapter or memory backend does 
 touching the CLI or scan code.
 
 **What are the install and platform requirements?**
-The npm package requires Node.js 18 or later (`"engines": { "node": ">=18.0.0" }` in
+The npm package requires Node.js 20 or later (`"engines": { "node": ">=20.0.0" }` in
 `package.json`). The Python package requires Python 3.9 or later (`requires-python = ">=3.9"` in
 `python/pyproject.toml`) and is classified `Operating System :: OS Independent` on PyPI. Both
 packages are plain Node/Python with no native or OS-specific dependencies; day-to-day development
